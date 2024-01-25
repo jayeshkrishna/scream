@@ -345,7 +345,13 @@ void AtmosphereInput::finalize()
 /* ---------------------------------------------------------- */
 void AtmosphereInput::init_scorpio_structures() 
 {
-  scorpio::register_file(m_filename,scorpio::Read);
+  int iotype = str2iotype("default");
+  if(m_params.isParameter("iotype")){
+    std::string iotype_str = m_params.get<std::string>("iotype");
+    iotype = str2iotype(iotype_str);
+  }
+
+  scorpio::register_file(m_filename,scorpio::Read,iotype);
 
   // Register variables with netCDF file.
   register_variables();

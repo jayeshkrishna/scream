@@ -102,6 +102,40 @@ struct IOControl {
   } // End function is_write_step
 };
 
+inline int str2iotype(const std::string &str)
+{
+  if(str == "default"){
+    return 0;
+  }
+  else if(str == "netcdf"){
+    return 1;
+  }
+  else if(str == "pnetcdf"){
+    return 2;
+  }
+  else if(str == "adios"){
+    return 3;
+  }
+  else if(str == "hdf5"){
+    return 4;
+  }
+  else{
+    return 0;
+  }
+}
+
+inline std::string iotype2str(int iotype)
+{
+  switch(iotype){
+    case 0: return "default";
+    case 1: return "netcdf";
+    case 2: return "pnetcdf";
+    case 3: return "adios";
+    case 4: return "hdf5";
+    default: return "default";
+  }
+}
+
 // Mini struct to hold some specs of an IO file
 // To keep nc files small, we limit the number of snapshots in each nc file
 // When the number of snapshots in a file reaches m_out_max_steps, it's time
@@ -111,6 +145,8 @@ struct IOFileSpecs {
   std::string filename;
   int num_snapshots_in_file = 0;
   int max_snapshots_in_file;
+
+  int iotype = 0;
 
   // If positive, flush the output file every these many snapshots
   int flush_frequency = -1;

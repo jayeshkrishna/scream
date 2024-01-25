@@ -279,7 +279,7 @@ setup (const ekat::Comm& io_comm, const ekat::ParameterList& params,
       const auto& last_output_filename = get_attribute<std::string>(rhist_file,"last_output_filename");
       m_resume_output_file = last_output_filename!="" and not restart_pl.get("force_new_file",false);
       if (m_resume_output_file) {
-        scorpio::register_file(last_output_filename,scorpio::Read);
+        scorpio::register_file(last_output_filename,scorpio::Read,m_output_file_specs.iotype);
         int num_snaps = scorpio::get_dimlen(last_output_filename,"time");
 
         // End of checks. Close the file.
@@ -640,6 +640,13 @@ set_params (const ekat::ParameterList& params,
         "  - input value: " + prec + "\n"
         "  - supported values: float, single, double, real\n");
   }
+  // Set the iotype to use for the output file
+  std::string iotype("default");
+  if(m_params.isParameter("iotype")){
+    iotype = m_params.get<std::string>("iotype");
+  }
+  m_output_file_specs.iotype = str2iotype(iotype);
+  m_checkpoint_file_specs.iotype = str2iotype(iotype);
 }
 /*===============================================================================================*/
 void OutputManager::
@@ -657,7 +664,7 @@ setup_file (      IOFileSpecs& filespecs,
   const auto& filename = filespecs.filename;
   // Register new netCDF file for output. Check if we need to append to an existing file
   auto mode = m_resume_output_file ? Append : Write;
-  register_file(filename,mode);
+  register_file(filename,mode,filespecs.iotype);
   if (m_resume_output_file) {
     eam_pio_redef(filename);
   }
